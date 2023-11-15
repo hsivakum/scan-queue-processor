@@ -62,7 +62,7 @@ func (rm *ResourceManager) ProcessRequest(ctx context.Context, scanRequest model
 			AccessModes:      []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
 			PersistentVolumeSource: v1.PersistentVolumeSource{
 				HostPath: &v1.HostPathVolumeSource{
-					Path: "/tmp/trufflehog", // Replace with your desired path
+					Path: "/tmp/trufflehog/" + scanRequest.RepoName, // Replace with your desired path
 				},
 			},
 			PersistentVolumeReclaimPolicy: v1.PersistentVolumeReclaimDelete,
@@ -195,7 +195,7 @@ func (rm *ResourceManager) ProcessRequest(ctx context.Context, scanRequest model
 					VolumeMounts: []v1.VolumeMount{
 						{
 							Name:      "scan-volume",
-							MountPath: "/home/scanner/" + scanRequest.RepoName,
+							MountPath: "/home/scanner/",
 						},
 					},
 				},
