@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
 	"strconv"
 	"strings"
 
@@ -14,6 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+
 	"scan-queue-processor/models"
 	"scan-queue-processor/scm_service"
 )
@@ -196,8 +196,15 @@ func (rm *ResourceManager) ProcessRequest(ctx context.Context, scanRequest model
 							},
 						},
 						{
-							Name:  "KEY_VAULT_URL",
-							Value: os.Getenv("KEY_VAULT_URL"),
+							Name: "KEY_VAULT_URL",
+							ValueFrom: &v1.EnvVarSource{
+								SecretKeyRef: &v1.SecretKeySelector{
+									LocalObjectReference: v1.LocalObjectReference{
+										Name: "global-secret",
+									},
+									Key: "KEY_VAULT_URL",
+								},
+							},
 						},
 					},
 					Resources: v1.ResourceRequirements{
