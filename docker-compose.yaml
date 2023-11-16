@@ -63,11 +63,8 @@ services:
       - zookeeper
 
   scan-queue-processor:
-    image: scan-queue-processor:latest
+    image: harishsivakumar/scan-queue-processor:latest
     container_name: scan-queue-processor
-    build:
-      context: .
-      dockerfile: infrastructure/Dockerfile
     env_file:
       - .env
     volumes:

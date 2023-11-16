@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 
@@ -40,7 +41,7 @@ func (s scm) GetRepoSize(ctx context.Context, scanRequest *models.QueuedScan) (f
 			Value:     []byte(scanRequest.EncryptedToken),
 		}, nil)
 		if err != nil {
-			log.Printf("Unable to decrypt token using token key ", err)
+			log.Printf("Unable to decrypt token using token key %v", err)
 			return 0, err
 		}
 		request.Header.Add("Authorization", "Bearer "+string(decrypt.Result))
@@ -54,7 +55,16 @@ func (s scm) GetRepoSize(ctx context.Context, scanRequest *models.QueuedScan) (f
 
 	defer response.Body.Close()
 	var repo models.GithubRepo
-	err = json.NewDecoder(response.Body).Decode(&repo)
+	bodyBytes, err := io.ReadAll(response.Body)
+	if err != nil {
+		log.Printf("Unable to read body %v", err)
+		return 0, err
+	}
+	if response.StatusCode != 200 {
+		return 0, fmt.Errorf("unable to get repo size error: %v", string(bodyBytes))
+	}
+
+	err = json.Unmarshal(bodyBytes, &repo)
 	if err != nil {
 		log.Printf("Unable to decode repo response %v", err)
 		return 0, err
