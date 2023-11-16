@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
@@ -15,6 +16,7 @@ import (
 	"k8s.io/client-go/util/homedir"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -83,7 +85,33 @@ func main() {
 
 	github := scm_service.NewGithub(*http.DefaultClient, azkeysClient, *githubAPIToken.Value)
 
-	resourceManager := dynamic_resource_allocator.NewResourceManager(clientSet, github, namespace)
+	dbPassword, err := secretClient.GetSecret(context.TODO(), constants.DBPasswordKey, "", nil)
+	if err != nil {
+		panic(err)
+	}
+
+	// PostgreSQL connection details
+	dbInfo := url.URL{
+		Scheme:   "postgres",
+		User:     url.UserPassword(os.Getenv("DB_USER"), *dbPassword.Value),
+		Host:     fmt.Sprintf("%s:%s", os.Getenv("DB_HOST"), os.Getenv("DB_PORT")),
+		Path:     os.Getenv("DB_NAME"),
+		RawQuery: "sslmode=disable",
+	}
+
+	// Connect to the database
+	db, err := sql.Open("postgres", dbInfo.String())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	// Check the connection
+	if err := db.Ping(); err != nil {
+		log.Fatal(err)
+	}
+
+	resourceManager := dynamic_resource_allocator.NewResourceManager(clientSet, github, db, namespace)
 
 	// Define the Kafka broker addresses
 	brokers := []string{os.Getenv("KAFKA_HOST")} // Replace with your broker addresses

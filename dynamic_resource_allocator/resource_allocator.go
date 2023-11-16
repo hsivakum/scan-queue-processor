@@ -296,10 +296,11 @@ func convertToMiGi(kb float64) (float64, float64, string) {
 	return kb, 1000, "Ki"
 }
 
-func NewResourceManager(client *kubernetes.Clientset, scmService scm_service.SCMService, namespace string) *ResourceManager {
+func NewResourceManager(client *kubernetes.Clientset, scmService scm_service.SCMService, db *sql.DB, namespace string) *ResourceManager {
 	return &ResourceManager{
 		k8Client:  client,
 		scmClient: scmService,
 		namespace: namespace,
+		db:        db,
 	}
 }
