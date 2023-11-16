@@ -8,7 +8,7 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azsecrets v1.0.1
 	github.com/IBM/sarama v1.42.1
 	github.com/google/uuid v1.4.0
-	github.com/joho/godotenv v1.5.1
+	github.com/lib/pq v1.10.9
 	k8s.io/api v0.28.3
 	k8s.io/apimachinery v0.28.3
 	k8s.io/client-go v0.28.3
