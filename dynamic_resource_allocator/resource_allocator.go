@@ -119,20 +119,48 @@ func (rm *ResourceManager) ProcessRequest(ctx context.Context, scanRequest model
 							Value: uniqueIdentifier,
 						},
 						{
-							Name:  "DB_HOST",
-							Value: os.Getenv("DB_HOST"),
+							Name: "DB_HOST",
+							ValueFrom: &v1.EnvVarSource{
+								SecretKeyRef: &v1.SecretKeySelector{
+									LocalObjectReference: v1.LocalObjectReference{
+										Name: "global-secret",
+									},
+									Key: "DB_HOST",
+								},
+							},
 						},
 						{
-							Name:  "DB_PORT",
-							Value: os.Getenv("DB_PORT"),
+							Name: "DB_PORT",
+							ValueFrom: &v1.EnvVarSource{
+								SecretKeyRef: &v1.SecretKeySelector{
+									LocalObjectReference: v1.LocalObjectReference{
+										Name: "global-secret",
+									},
+									Key: "DB_PORT",
+								},
+							},
 						},
 						{
-							Name:  "DB_NAME",
-							Value: os.Getenv("DB_NAME"),
+							Name: "DB_NAME",
+							ValueFrom: &v1.EnvVarSource{
+								SecretKeyRef: &v1.SecretKeySelector{
+									LocalObjectReference: v1.LocalObjectReference{
+										Name: "global-secret",
+									},
+									Key: "DB_NAME",
+								},
+							},
 						},
 						{
-							Name:  "DB_USER",
-							Value: os.Getenv("DB_USER"),
+							Name: "DB_USER",
+							ValueFrom: &v1.EnvVarSource{
+								SecretKeyRef: &v1.SecretKeySelector{
+									LocalObjectReference: v1.LocalObjectReference{
+										Name: "global-secret",
+									},
+									Key: "DB_USER",
+								},
+							},
 						},
 						{
 							Name: "AZURE_CLIENT_ID",
@@ -169,7 +197,7 @@ func (rm *ResourceManager) ProcessRequest(ctx context.Context, scanRequest model
 						},
 						{
 							Name:  "KEY_VAULT_URL",
-							Value: "https://gola.vault.azure.net/",
+							Value: os.Getenv("KEY_VAULT_URL"),
 						},
 					},
 					Resources: v1.ResourceRequirements{
