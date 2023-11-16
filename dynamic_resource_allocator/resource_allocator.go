@@ -2,8 +2,10 @@ package dynamic_resource_allocator
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 
@@ -25,6 +27,7 @@ type ResourceManager struct {
 	k8Client  *kubernetes.Clientset
 	scmClient scm_service.SCMService
 	namespace string
+	db        *sql.DB
 }
 
 func isPVCReady(pvc *v1.PersistentVolumeClaim) bool {
@@ -112,37 +115,24 @@ func (rm *ResourceManager) ProcessRequest(ctx context.Context, scanRequest model
 							Value: strconv.FormatBool(scanRequest.IsPrivate),
 						},
 						{
-							Name: "DB_HOST",
-							ValueFrom: &v1.EnvVarSource{
-								SecretKeyRef: &v1.SecretKeySelector{
-									LocalObjectReference: v1.LocalObjectReference{
-										Name: "global-secret",
-									},
-									Key: "DB_HOST",
-								},
-							},
+							Name:  "SCAN_ID",
+							Value: uniqueIdentifier,
 						},
 						{
-							Name: "DB_PORT",
-							ValueFrom: &v1.EnvVarSource{
-								SecretKeyRef: &v1.SecretKeySelector{
-									LocalObjectReference: v1.LocalObjectReference{
-										Name: "global-secret",
-									},
-									Key: "DB_PORT",
-								},
-							},
+							Name:  "DB_HOST",
+							Value: os.Getenv("DB_HOST"),
 						},
 						{
-							Name: "DB_NAME",
-							ValueFrom: &v1.EnvVarSource{
-								SecretKeyRef: &v1.SecretKeySelector{
-									LocalObjectReference: v1.LocalObjectReference{
-										Name: "global-secret",
-									},
-									Key: "DB_NAME",
-								},
-							},
+							Name:  "DB_PORT",
+							Value: os.Getenv("DB_PORT"),
+						},
+						{
+							Name:  "DB_NAME",
+							Value: os.Getenv("DB_NAME"),
+						},
+						{
+							Name:  "DB_USER",
+							Value: os.Getenv("DB_USER"),
 						},
 						{
 							Name: "AZURE_CLIENT_ID",
@@ -250,6 +240,14 @@ func (rm *ResourceManager) ProcessRequest(ctx context.Context, scanRequest model
 		panic(err.Error())
 	}
 	log.Printf("Created PVC %s\n", pvcName)
+
+	_, err = rm.db.ExecContext(ctx, `UPDATE scan_requests SET queue_status = $1, modified_at = current_timestamp, scan_id = $2 WHERE id = $3`, "Scheduled", uniqueIdentifier, scanRequest.ID)
+	if err != nil {
+		log.Printf("Unable to update queue status %v", err)
+		return err
+	}
+
+	log.Println("Updated queue status to queued for scan_id ", uniqueIdentifier)
 
 	return nil
 }
