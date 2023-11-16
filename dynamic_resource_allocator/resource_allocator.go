@@ -100,7 +100,7 @@ func (rm *ResourceManager) ProcessRequest(ctx context.Context, scanRequest model
 				{
 					ImagePullPolicy: v1.PullAlways,
 					Name:            podName,
-					Image:           "harishsivakumar/trufflehog-scanner:latest", // Replace with your image name and tag.
+					Image:           "harishsivakumar/truffle-scanner:latest", // Replace with your image name and tag.
 					Env: []v1.EnvVar{
 						{
 							Name:  "URL",
