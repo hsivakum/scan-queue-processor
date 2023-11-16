@@ -93,7 +93,7 @@ func (rm *ResourceManager) ProcessRequest(ctx context.Context, scanRequest model
 		Spec: v1.PodSpec{
 			ImagePullSecrets: []v1.LocalObjectReference{
 				{
-					Name: "artifact-registry",
+					Name: "artifactory-registry",
 				},
 			},
 			Containers: []v1.Container{
