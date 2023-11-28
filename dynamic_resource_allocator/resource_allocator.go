@@ -217,7 +217,7 @@ func (rm *ResourceManager) ProcessRequest(ctx context.Context, scanRequest model
 							v1.ResourceMemory: resource.MustParse("256Mi"), // Memory request.
 						},
 						Limits: v1.ResourceList{
-							v1.ResourceCPU:    resource.MustParse("1"),   // CPU limit.
+							v1.ResourceCPU:    resource.MustParse("3"),   // CPU limit.
 							v1.ResourceMemory: resource.MustParse("1Gi"), // Memory limit.
 						},
 					},
