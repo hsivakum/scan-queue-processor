@@ -81,6 +81,10 @@ func (rm *ResourceManager) ProcessRequest(ctx context.Context, scanRequest model
 	pvcName := "trufflehog-pvc-" + uniqueIdentifier
 	podName := strings.ReplaceAll(scanRequest.RepoName, "_", "-") + "-" + uniqueIdentifier
 
+	if len(podName) > 63 {
+		podName = podName[:62]
+	}
+
 	// Define the pod configuration.
 	pod := &v1.Pod{
 		TypeMeta: metav1.TypeMeta{
