@@ -79,7 +79,7 @@ func (rm *ResourceManager) ProcessRequest(ctx context.Context, scanRequest model
 	}
 
 	pvcName := "trufflehog-pvc-" + uniqueIdentifier
-	podName := strings.ReplaceAll(scanRequest.RepoName, "_", "-") + "-" + uniqueIdentifier
+	podName := strings.ReplaceAll(strings.ToLower(scanRequest.RepoName), "_", "-") + "-" + uniqueIdentifier
 
 	if len(podName) > 63 {
 		podName = podName[:62]
